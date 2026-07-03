@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -6,6 +6,14 @@ from app.database.base import Base
 
 class Feature(Base):
     __tablename__ = "features"
+
+    __table_args__ = (
+    UniqueConstraint(
+        "category_id",
+        "name",
+        name="uq_feature_category_name",
+    ),
+)
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
@@ -34,3 +42,4 @@ class Feature(Base):
     back_populates="feature",
     cascade="all, delete-orphan"
     )
+

@@ -1,0 +1,14 @@
+User creates different categories for different questions which each contain their own predictors and observations.
+
+Categories
+--Predictors
+----Observations
+
+Ex: User wants to determine how many hours to sleep each day
+
+Category: Sleep hours
+Predictors: Calories consumed, diet rating, hours productive
+Observation #50: 2100, 7/10, 8
+
+The database itself would consist of categories, predictors, observations, and observation values, where categories get a unique id which allows predictors to be assigned to them. 
+
