@@ -12,3 +12,555 @@ Observation #50: 2100, 7/10, 8
 
 The database itself would consist of categories, predictors, observations, and observation values, where categories get a unique id which allows predictors to be assigned to them. 
 
+
+
+Absolutely. I think this is actually a great point to pause and reflect, because we've made a lot of decisions over the past few weeks. One thing I've noticed is that we haven't just been *building features*—we've been gradually discovering what this project actually wants to be.
+
+If I had to summarize it, I'd say the project has evolved from:
+
+> "An app that makes decisions for you."
+
+into
+
+> **"A generic machine learning platform that allows users to build, train, evaluate, and use decision models on their own historical data."**
+
+Here's the roadmap as I currently see it.
+
+---
+
+# Decision Prediction Engine - Architecture Roadmap
+
+## Phase 0 — Project Setup ✅
+
+**Goal:** Build a solid development environment.
+
+Completed:
+
+* GitHub repository
+* Python virtual environment
+* FastAPI
+* SQLAlchemy
+* SQLite
+* Project structure
+
+Vision:
+
+```text
+A maintainable backend that can grow over time.
+```
+
+---
+
+# Phase 1 — System Architecture ✅
+
+This was arguably the most important phase.
+
+We decided the project should be completely **generic**.
+
+Instead of:
+
+```text
+Sleep
+Mood
+Exercise
+```
+
+the user creates their own prediction problems.
+
+Example:
+
+```text
+Should I Accept This Job?
+```
+
+or
+
+```text
+Will This Project Succeed?
+```
+
+We defined four core concepts:
+
+```text
+Category
+Feature
+Observation
+ObservationValue
+```
+
+which directly map to machine learning concepts.
+
+---
+
+## Categories
+
+A Category represents one supervised learning problem.
+
+Example:
+
+```text
+Should I Buy This?
+```
+
+It defines:
+
+* target name
+* target type
+
+We decided:
+
+✅ Users can edit
+
+* name
+* description
+* target name
+
+❌ Users cannot edit
+
+* target type
+
+because changing between regression and classification introduces unnecessary complexity for the MVP.
+
+---
+
+## Features
+
+Features are the predictor variables (**X**).
+
+Examples:
+
+```text
+Salary
+Commute
+Remote
+```
+
+Supported MVP types:
+
+```text
+numeric
+boolean
+```
+
+Future:
+
+```text
+categorical
+```
+
+---
+
+## Observations
+
+This was one of our biggest conceptual breakthroughs.
+
+Each Observation represents **one complete supervised learning example**.
+
+```text
+X → Y
+```
+
+Example:
+
+```text
+Salary = 95000
+Commute = 20
+Remote = Yes
+
+↓
+
+Accepted = Yes
+```
+
+This directly mirrors how machine learning datasets are structured.
+
+---
+
+## Observation Values
+
+Rather than storing columns dynamically, we store:
+
+```text
+Observation
+↓
+
+many ObservationValues
+```
+
+Each ObservationValue connects:
+
+```text
+Observation
+↓
+
+Feature
+
+↓
+
+Value
+```
+
+This allows every category to have completely different features.
+
+---
+
+# Phase 2 — Database Layer ✅
+
+We implemented the architecture in SQLAlchemy.
+
+Core tables:
+
+```text
+categories
+features
+observations
+observation_values
+```
+
+Important decisions:
+
+✅ Foreign keys
+
+✅ Relationships
+
+Observation values stored as:
+
+```text
+VARCHAR
+```
+
+instead of separate numeric/boolean columns.
+
+Reason:
+
+The ML preprocessing pipeline will convert them later.
+
+This keeps the database simple while still supporting multiple data types.
+
+---
+
+# Phase 3 — REST API (Current)
+
+Goal:
+
+Expose the database through FastAPI.
+
+The API should describe **domain concepts**, not database implementation details.
+
+Example:
+
+Instead of asking clients to manually create:
+
+```text
+Observation
+ObservationValue
+ObservationValue
+ObservationValue
+```
+
+they simply send:
+
+```json
+{
+  "category_id": 1,
+  "target_value": "Yes",
+  "values": [
+    ...
+  ]
+}
+```
+
+The backend handles the rest.
+
+This was an important design decision because the API is centered around what the user thinks they're doing ("creating an observation"), not how it's stored.
+
+---
+
+# Phase 4 — Machine Learning Pipeline
+
+This is where the project becomes truly interesting.
+
+Pipeline:
+
+```text
+Validate Dataset
+↓
+
+Build X matrix
+
+↓
+
+Build y vector
+
+↓
+
+Preprocess Data
+
+↓
+
+Train Multiple Models
+
+↓
+
+Evaluate Models
+
+↓
+
+Select Best Model
+
+↓
+
+Save Model
+```
+
+Supported MVP:
+
+Classification:
+
+* Logistic Regression
+* Decision Tree
+* Random Forest
+
+Regression:
+
+* Linear Regression
+* Decision Tree Regressor
+* Random Forest Regressor
+
+---
+
+# Phase 5 — Predictions
+
+User enters:
+
+```text
+New Feature Values
+```
+
+Example:
+
+```text
+Salary = 100000
+Commute = 15
+Remote = Yes
+```
+
+Backend:
+
+```text
+Load trained model
+
+↓
+
+Preprocess
+
+↓
+
+Predict
+```
+
+Returns:
+
+```text
+Prediction
+
+Confidence
+
+Model used
+```
+
+---
+
+# Phase 6 — Model Evaluation
+
+One thing we've discussed several times is that this project shouldn't just make predictions.
+
+It should explain itself.
+
+Example:
+
+```text
+Models Tested
+
+Logistic Regression
+Accuracy: 78%
+
+Decision Tree
+Accuracy: 73%
+
+Random Forest
+Accuracy: 86%
+
+Selected:
+Random Forest
+```
+
+The user learns something instead of just seeing a prediction.
+
+---
+
+# Phase 7 — Explainability
+
+I think this is where the project becomes portfolio-worthy.
+
+Examples:
+
+Feature importance
+
+```text
+Salary
+★★★★☆
+
+Commute
+★★★☆☆
+
+Remote
+★☆☆☆☆
+```
+
+Confidence:
+
+```text
+Prediction:
+Accept
+
+Confidence:
+91%
+```
+
+Dataset quality:
+
+```text
+You currently have only 12 observations.
+
+Predictions may not generalize well.
+```
+
+---
+
+# Phase 8 — Future Enhancements
+
+Ideas we've intentionally postponed:
+
+### Categorical predictors
+
+Instead of:
+
+```text
+numeric
+boolean
+```
+
+support:
+
+```text
+Industry
+Weather
+Movie Genre
+```
+
+---
+
+### Multiple trained models
+
+Instead of only storing the newest model.
+
+---
+
+### Preference-aware recommendations
+
+One of today's discussions.
+
+User preferences could eventually supplement machine learning when datasets are very small.
+
+For MVP:
+
+We intentionally decided **not** to implement this.
+
+---
+
+### Bayesian / Hybrid recommendations
+
+Possible future research direction.
+
+---
+
+# Project Philosophy
+
+I think this has become just as important as the technical decisions.
+
+We've consistently chosen to:
+
+✅ Prioritize learning over speed.
+
+✅ Keep the MVP focused.
+
+✅ Design for extensibility without implementing every future idea immediately.
+
+✅ Mirror machine learning concepts in the software architecture.
+
+---
+
+# The Mental Model
+
+I think this diagram captures the entire project:
+
+```text
+                 User
+                   │
+                   ▼
+          Create Category
+                   │
+                   ▼
+          Define Features (X)
+                   │
+                   ▼
+       Add Historical Observations
+            (X values + Y value)
+                   │
+                   ▼
+          Click "Train Models"
+                   │
+                   ▼
+      Validate & Preprocess Dataset
+                   │
+                   ▼
+     Train Multiple ML Algorithms
+                   │
+                   ▼
+      Compare Performance Metrics
+                   │
+                   ▼
+        Save Best Performing Model
+                   │
+                   ▼
+     Enter New Predictor Values (X)
+                   │
+                   ▼
+          Generate Prediction (Y)
+                   │
+                   ▼
+   Explain Confidence & Model Choice
+```
+
+---
+
+## Finally, here's something I genuinely appreciate about how we've approached this.
+
+When we started, we were asking questions like:
+
+> "What tables do we need?"
+
+Now we're asking questions like:
+
+> "Does this API reflect the domain model?"
+>
+> "Will this design make the ML pipeline cleaner?"
+>
+> "Should this feature belong in the MVP or the long-term roadmap?"
+>
+> "How would an end user think about this action?"
+
+Those are the kinds of questions that separate writing code from designing software.
+
+I think if we continue with that mindset through the remaining phases, you'll end up with much more than a GitHub project. You'll have a project that tells a coherent story: **a generic decision-support platform built on sound software engineering and machine learning principles.** That's exactly the kind of project that's rewarding to build and easy to discuss with others.

@@ -29,3 +29,7 @@ class ObservationValue(Base):
     feature: Mapped["Feature"] = relationship(
         back_populates="observation_values"
     )
+
+    @property
+    def feature_name(self):
+        return self.feature.name
