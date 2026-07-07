@@ -1,11 +1,12 @@
 from pydantic import BaseModel, ConfigDict
+from typing import Literal
 
 
 class CategoryCreate(BaseModel):
     name: str
     description: str | None = None
     target_name: str
-    target_type: str
+    target_type: Literal["classification", "regression"]
 
 class CategoryUpdate(BaseModel):
     name: str | None = None
