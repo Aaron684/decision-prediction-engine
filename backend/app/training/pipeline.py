@@ -1,25 +1,25 @@
-from sqlalchemy.orm import Session
-
-from app.training.dataset_loader import load_category_dataset
-from app.training.dataset_builder import build_training_dataset
-from app.training.validator import validate_dataset
-from app.training.schemas import TrainingDataset
+from training.comparison import compare_models
+from training.dataset_builder import create_training_dataset
+from training.trainer import train_best_model
 
 
-def create_training_dataset(
-    db: Session,
+def train_category(
+    db,
     category_id: int,
-) -> TrainingDataset:
-    """
-    Create a validated machine learning dataset
-    from a category.
-    """
+):
 
-    category = load_category_dataset(
+    dataset = create_training_dataset(
         db,
         category_id,
     )
 
-    validate_dataset(category)
+    leaderboard = compare_models(
+        dataset,
+    )
 
-    return build_training_dataset(category)
+    trained_model = train_best_model(
+        dataset,
+        leaderboard,
+    )
+
+    return trained_model
