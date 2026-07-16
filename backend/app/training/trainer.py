@@ -1,6 +1,6 @@
-from training.leaderboard import ModelLeaderboard
-from training.model_factory import create_registered_model
-from training.schemas import (
+from app.training.leaderboard import ModelLeaderboard
+from app.training.model_factory import create_registered_model
+from app.training.schemas import (
     TrainingDataset,
     TrainedModel,
 )

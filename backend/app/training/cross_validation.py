@@ -3,7 +3,7 @@ from sklearn.model_selection import (
     KFold,
 )
 
-from training.schemas import TrainingDataset
+from app.training.schemas import TrainingDataset
 
 
 RANDOM_STATE = 42

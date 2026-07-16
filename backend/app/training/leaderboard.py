@@ -1,4 +1,4 @@
-from training.schemas import ModelEvaluation
+from app.training.schemas import ModelEvaluation
 
 
 class ModelLeaderboard:

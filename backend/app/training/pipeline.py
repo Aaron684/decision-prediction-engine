@@ -1,6 +1,6 @@
-from training.comparison import compare_models
-from training.dataset_builder import create_training_dataset
-from training.trainer import train_best_model
+from app.training.comparison import compare_models
+from app.training.dataset_builder import build_training_dataset
+from app.training.trainer import train_best_model
 
 
 def train_category(
@@ -8,7 +8,7 @@ def train_category(
     category_id: int,
 ):
 
-    dataset = create_training_dataset(
+    dataset = build_training_dataset(
         db,
         category_id,
     )

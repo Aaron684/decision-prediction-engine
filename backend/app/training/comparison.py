@@ -1,7 +1,7 @@
-from training.evaluation import evaluate_model
-from training.leaderboard import ModelLeaderboard
-from training.model_factory import get_model_registry
-from training.schemas import TrainingDataset, ModelEvaluation
+from app.training.evaluation import evaluate_model
+from app.training.leaderboard import ModelLeaderboard
+from app.training.model_factory import get_model_registry
+from app.training.schemas import TrainingDataset, ModelEvaluation
 
 
 def compare_models(

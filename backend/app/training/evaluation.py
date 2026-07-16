@@ -1,8 +1,8 @@
 from sklearn.model_selection import cross_val_predict
 
-from training.cross_validation import get_cv_strategy
-from training.metrics import calculate_metrics
-from training.schemas import ModelEvaluation
+from app.training.cross_validation import get_cv_strategy
+from app.training.metrics import calculate_metrics
+from app.training.schemas import ModelEvaluation
 
 
 def evaluate_model(
