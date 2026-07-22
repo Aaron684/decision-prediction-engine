@@ -8,6 +8,8 @@ from app.routers.observations import router as observation_router
 from app.database.database import engine
 from app.database.base import Base
 
+from app.api.prediction import router as prediction_router
+
 from app.models import *
 
 
@@ -23,6 +25,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(category_router)
 app.include_router(feature_router)
 app.include_router(observation_router)
+app.include_router(prediction_router)
 
 
 @app.get("/")

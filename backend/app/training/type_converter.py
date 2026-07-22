@@ -15,7 +15,25 @@ def convert_feature_value(
             return float(value)
 
         if data_type == "boolean":
-            return convert_boolean(value)
+
+            if isinstance(value, bool):
+                return value
+
+
+            if isinstance(value, str):
+
+                normalized = value.lower()
+
+                if normalized == "true":
+                    return True
+
+                if normalized == "false":
+                    return False
+
+
+            raise ValueError(
+            f"Invalid boolean value: {value}"
+        )
 
         raise TypeConversionError(
             f"Unsupported feature data type: {data_type}"

@@ -31,11 +31,18 @@ class Category(Base):
         String(50),
         nullable=False
     )
+
     features: Mapped[list["Feature"]] = relationship(
-    back_populates="category",
-    cascade="all, delete-orphan"
+        back_populates="category",
+        cascade="all, delete-orphan"
     )
+
     observations: Mapped[list["Observation"]] = relationship(
-    back_populates="category",
-    cascade="all, delete-orphan"
+        back_populates="category",
+        cascade="all, delete-orphan"
+    )
+
+    trained_models: Mapped[list["TrainedModel"]] = relationship(
+        back_populates="category",
+        cascade="all, delete-orphan"
     )
