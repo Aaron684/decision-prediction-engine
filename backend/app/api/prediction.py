@@ -45,5 +45,20 @@ def predict_category(
 
 
     return {
-        "prediction": result.prediction
+        "prediction": result.prediction,
+        "explanation": {
+            "method": result.explanation.method,
+            "confidence": result.explanation.confidence,
+            "feature_contributions": [
+                {
+                    "feature_name": contribution.feature_name,
+                    "feature_value": contribution.feature_value,
+                    "importance": contribution.importance,
+                    "direction": contribution.direction,
+                }
+                for contribution in (
+                    result.explanation.feature_contributions
+                )
+            ],
+        },
     }

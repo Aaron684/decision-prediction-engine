@@ -15,6 +15,10 @@ from app.training.schemas import (
     TrainedModel,
 )
 
+from app.training.explainability.engine import (
+    ExplanationEngine,
+)
+
 
 def predict(
     trained_model: TrainedModel,
@@ -37,6 +41,7 @@ def predict(
         if hasattr(prediction, "item"):
             prediction = prediction.item()
 
+
     except Exception as error:
 
         raise PredictionExecutionError(
@@ -44,6 +49,14 @@ def predict(
         )
 
 
+    explanation = ExplanationEngine().explain(
+        trained_model,
+        request.values,
+        prediction,
+    )
+
+
     return PredictionResult(
         prediction=prediction,
+        explanation=explanation,
     )

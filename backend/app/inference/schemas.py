@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Any
 
+from app.training.explainability.schemas import (
+    PredictionExplanation,
+)
 
 @dataclass
 class PredictionRequest:
@@ -22,3 +25,5 @@ class PredictionRequest:
 class PredictionResult:
 
     prediction: Any
+
+    explanation: PredictionExplanation
