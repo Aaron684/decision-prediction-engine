@@ -1,87 +1,164 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import {
+  getCategories,
+  deleteCategory,
+  type Category,
+} from "../api/Categories";
 
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
+
 import CategoryCard from "../components/categories/CategoryCard";
+import CategoryForm from "../components/categories/CategoryForm";
+
 import Card from "../components/ui/Card";
-import Button from "../components/ui/Button";
+import ConfirmDialog from "../components/ui/ConfirmDialogue";
+
+import { useToast } from "../context/ToastContext";
 
 function Categories() {
   const navigate = useNavigate();
+  const toast = useToast();
 
-  // Temporary mock data until backend integration
-  const categories = [
-    {
-      id: 1,
-      name: "Should I Accept This Job?",
-      type: "Classification",
-      features: 5,
-      observations: 120,
-    },
-    {
-      id: 2,
-      name: "Should I Buy This House?",
-      type: "Regression",
-      features: 8,
-      observations: 58,
-    },
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [editingCategory, setEditingCategory] = useState<
+    Category | undefined
+  >();
+
+  const [deletingCategory, setDeletingCategory] = useState<
+    Category | undefined
+  >();
+
+  async function loadCategories() {
+    try {
+      setLoading(true);
+
+      const result = await getCategories();
+
+      setCategories(result);
+      setError(null);
+    } catch {
+      setError("Unable to load categories.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  async function handleDelete() {
+    if (!deletingCategory) {
+      return;
+    }
+
+    try {
+      await deleteCategory(deletingCategory.id);
+
+      toast.success("Category deleted.");
+
+      setDeletingCategory(undefined);
+
+      await loadCategories();
+    } catch {
+      toast.error("Unable to delete category.");
+    }
+  }
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <PageHeader title="Categories" subtitle="Loading categories..." />
+      </PageLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayout>
+        <PageHeader title="Categories" subtitle="Something went wrong." />
+
+        <Card>
+          <p className="text-red-600">{error}</p>
+        </Card>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>
       <PageHeader
         title="Categories"
-        subtitle="Manage your prediction problems."
+        subtitle="Create and manage prediction problems."
       />
 
-      <div className="mb-6 flex justify-end">
-        <Button
-          onClick={() => {
-            // We'll replace this later with the create page.
-            console.log("Create Category");
+      <div className="mt-8">
+        <CategoryForm
+          category={editingCategory}
+          onSaved={async () => {
+            setEditingCategory(undefined);
+            await loadCategories();
           }}
-        >
-          + New Category
-        </Button>
+          onCancel={() => setEditingCategory(undefined)}
+        />
       </div>
 
-      {categories.length === 0 ? (
-        <Card>
-          <div className="py-10 text-center">
-            <h2 className="text-2xl font-semibold text-slate-800">
-              No Categories Yet
-            </h2>
-
-            <p className="mt-3 text-slate-600">
-              Create your first prediction problem to begin training machine
-              learning models.
+      <div className="mt-8 space-y-6">
+        {categories.length === 0 ? (
+          <Card>
+            <p className="text-slate-500">
+              No categories have been created yet.
             </p>
-
-            <div className="mt-8">
-              <Button
-                onClick={() => {
-                  console.log("Create Category");
-                }}
-              >
-                Create Your First Category
-              </Button>
-            </div>
-          </div>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {categories.map((category) => (
+          </Card>
+        ) : (
+          categories.map((category) => (
             <CategoryCard
               key={category.id}
+              id={category.id}
               name={category.name}
-              type={category.type}
-              features={category.features}
-              observations={category.observations}
+              type={
+                category.target_type.charAt(0).toUpperCase() +
+                category.target_type.slice(1)
+              }
+              description={category.description}
+              target={category.target_name}
+              features={0}
+              observations={0}
               onOpen={() => navigate(`/categories/${category.id}`)}
+              onEdit={() => {
+                setEditingCategory(category);
+
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }}
+              onDelete={() => {
+                setDeletingCategory(category);
+              }}
             />
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
+
+      <ConfirmDialog
+        open={deletingCategory !== undefined}
+        title="Delete Category"
+        message={
+          deletingCategory
+            ? `Delete "${deletingCategory.name}"? This will also remove all features and observations.`
+            : ""
+        }
+        confirmText="Delete"
+        onConfirm={handleDelete}
+        onCancel={() => setDeletingCategory(undefined)}
+      />
     </PageLayout>
   );
 }

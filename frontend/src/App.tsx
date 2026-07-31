@@ -1,20 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
-import Categories from "./pages/Categories";
 import Tutorial from "./pages/Tutorial";
+import Categories from "./pages/Categories";
+import CategoryDetails from "./pages/CategoryDetails";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
+    <Routes>
+      <Route path="/" element={<Home />} />
 
-        <Route path="/categories" element={<Categories />} />
+      <Route path="/help" element={<Tutorial />} />
 
-        <Route path="/help" element={<Tutorial />} />
-      </Routes>
-    </BrowserRouter>
+      <Route path="/categories" element={<Categories />} />
+
+      <Route path="/categories/:id" element={<CategoryDetails />} />
+    </Routes>
   );
 }
 

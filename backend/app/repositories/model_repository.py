@@ -263,3 +263,19 @@ class ModelRepository:
 
         if newest is not None:
             newest.is_active = True
+
+    def get_active_model_record(
+    self,
+    db: Session,
+    category_id: int,
+) -> TrainedModelDB | None:
+
+        return (
+            db.query(TrainedModelDB)
+            .filter(
+                TrainedModelDB.category_id == category_id,
+                TrainedModelDB.is_active == True,
+            )
+            .first()
+        )        
+        
